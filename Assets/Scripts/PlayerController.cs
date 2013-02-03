@@ -14,18 +14,27 @@ public class PlayerController : MonoBehaviour {
 	private float targetAngle;
 	private float currentAngle;
 
-	public GameObject dash;
+    private GameObject GameMode;
+    private bool deathState = false;
+
+    public GameObject dash;
 	public GameObject spark;
 	public GameObject spark2;
 
 	bool auxio;
 
 	void Start(){
-		
-	}
+        GameMode = GameObject.Find("HUD");
+    }
 
 	void FixedUpdate () {
-		
+        if (deathState)
+        {
+            SpawnEffect("ShockWave");
+            SpawnEffect("Bubble");
+            SpawnEffect("Blast");
+            return;
+        }
 		targetAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(targetRotation().y, targetRotation().x));
 		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
 		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle, 36f/currentSpeed+4f)) * currentSpeed;
@@ -140,9 +149,17 @@ public class PlayerController : MonoBehaviour {
 
 	}
 
-	void death () {
-	
-	}
+	public void death () {
+        deathState = true;
+        GameMode.GetComponent<GameMode>().GameIsOver = true;
+        GameMode.GetComponent<GameMode>().StateOfTheGame = "GameOver";
+    }
 
+    public void Win()
+    {
+        deathState = true;
+        GameMode.GetComponent<GameMode>().GameIsOver = true;
+        GameMode.GetComponent<GameMode>().StateOfTheGame = "WinGame";
+    }
 }
 	

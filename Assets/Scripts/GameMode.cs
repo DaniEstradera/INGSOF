@@ -6,12 +6,13 @@ public class GameMode : MonoBehaviour
 {
 
     public bool GameIsOver = false;
+    public string StateOfTheGame;
 
     private Animator anim;
     private float StopTimeScale = 0.01f;
     private float speed = 0.2f;
     private float lastDeltaTime;
-
+    private float restartDelay = 3;
 
 
     // Use this for initialization
@@ -25,21 +26,20 @@ public class GameMode : MonoBehaviour
     void Update()
     {
         if (GameIsOver) {
-            GameOver();
+            GameOver(StateOfTheGame);
         }
     }
 
-    void GameOver() {
-        float myDeltaTime = Time.realtimeSinceStartup - lastDeltaTime;
-        lastDeltaTime = Time.realtimeSinceStartup;
-        Time.timeScale = Mathf.MoveTowards(Time.timeScale, StopTimeScale, myDeltaTime * speed);
-        Time.fixedDeltaTime = 0.02F * Time.timeScale;
-        anim.SetTrigger("GameOver");
+    void GameOver(string reason) {
+        anim.SetTrigger(reason);
+        restartDelay -= Time.deltaTime;
+        if (restartDelay <= 0) {
+            RestartLevel();
+        }
     }
-
 
     public void RestartLevel ()
     {
-        SceneManager.LoadScene("Scene1");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

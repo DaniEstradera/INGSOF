@@ -11,10 +11,11 @@ public class BallController : MonoBehaviour {
 	private float delay = 0.2f;
 	private SpriteRenderer sr;
 	private GameObject GameMode;
+    private bool deathState = false;
 
-	//public Camera camera;
+    //public Camera camera;
 
-	public Color normalColor;
+    public Color normalColor;
 	public Color chargedColor;
 
 	void Start(){
@@ -24,7 +25,7 @@ public class BallController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
-		
+
 		targetAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(targetRotation().y, targetRotation().x));
 		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
 
@@ -82,9 +83,16 @@ public class BallController : MonoBehaviour {
 	}
 
 	public void death () {
+        deathState = true;
 		GameMode.GetComponent<GameMode>().GameIsOver = true;
+        GameMode.GetComponent<GameMode>().StateOfTheGame = "GameOver";
+    }
 
-	}
-
+    public void Win()
+    {
+        deathState = true;
+        GameMode.GetComponent<GameMode>().GameIsOver = true;
+        GameMode.GetComponent<GameMode>().StateOfTheGame = "WinGame";
+    }
 }
 	
