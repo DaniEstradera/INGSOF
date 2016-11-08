@@ -78,8 +78,8 @@ public class BallController : MonoBehaviour {
 
 	}
 
-	void death () {
-	
+	public void death () {
+
 	}
 
 }
