@@ -30,7 +30,7 @@
 			fixed4 c = tex2D(_MainTex, IN.uv_MainTex);
 			o.Albedo = c.rgb;
 			float2 screenUV = IN.screenPos.xy / IN.screenPos.w;
-			screenUV *= float2(_ScreenParams.x,_ScreenParams.y)*_Scale*0.001;
+			screenUV *= float2(_ScreenParams.x,_ScreenParams.y*1.75)*_Scale*0.001;
 			o.Albedo *= tex2D (_Detail, screenUV).rgb * _Color;
 			o.Alpha = c.a;
 		}

@@ -32,22 +32,33 @@ public class CameraController : MonoBehaviour {
 	}
 		
 	void FixedUpdate () {
-		Vector3 targetPosition = player.transform.position + offset;
+		Vector3 playerPos = player.transform.position + offset; 
+		Vector3 mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (Input.mousePosition).x, Camera.main.ScreenToWorldPoint (Input.mousePosition).y, offset.z); 
 
-		//Vector3 targetBetween = (targetPosition + Camera.main.ScreenToWorldPoint (Input.mousePosition)) / 2f;
-		//Debug.Log (""+ Vector3.Distance(targetPosition, Camera.main.ScreenToWorldPoint (Input.mousePosition)));
-		//Debug.Log (""+ Vector3.Distance(targetPosition, Camera.main.ScreenToWorldPoint (Input.mousePosition)));
+		float distMouse2Player = Vector3.Distance(playerPos, mousePos); 
+		float distCamera2Player = Vector3.Distance(playerPos, transform.position);
 
-		float distance = Vector3.Distance(targetPosition, Camera.main.ScreenToWorldPoint (Input.mousePosition))+1;
+		Vector3 mouseVector = (mousePos - player.transform.position).normalized;
 
-		Vector3 targetBetween = Vector3.Lerp (targetPosition, Camera.main.ScreenToWorldPoint (Input.mousePosition), (1f/distance));
+		//float maxDistance = maxDistance();
+		/*
+		float height = Camera.main.orthographicSize * 3.2f/4f;
+		float width = height * Camera.main.aspect;
+		if (height < width)
+			maxDistance = height;
+		else
+			maxDistance = width;*/
 
-		if (distance > 5) {
-			transform.position = Vector3.Lerp (transform.position, targetBetween, Time.fixedDeltaTime*distance);
-			//transform.position = Vector3.Lerp (transform.position, targetPosition, Time.fixedDeltaTime);
-		} else {
-			transform.position = Vector3.Lerp (transform.position, targetBetween, Time.fixedDeltaTime*distance);//*(Vector3.Distance(transform.position, targetPosition2)));
-		}
+
+		if (distMouse2Player >= maxDistance())
+			distMouse2Player = maxDistance();
+		
+		Vector3 targetCameraPos = new Vector3 (mouseVector.x * distMouse2Player + playerPos.x, mouseVector.y * distMouse2Player + playerPos.y, offset.z);
+
+		float speed = (distMouse2Player + distCamera2Player) / 2;
+		transform.position = Vector3.Lerp (transform.position, targetCameraPos, Time.fixedDeltaTime * speed);
+	
+
 		if (shake > 0) {
 			transform.position = NoiseGen.Shake (amplitude, frequency, octaves, persistance, lacunarity, burstFrequency, burstContrast, Time.time, transform.position);
 			shake -= Time.fixedDeltaTime;
@@ -55,8 +66,18 @@ public class CameraController : MonoBehaviour {
 			shake = 0;
 	
 	}
-
+		
 	public void SetShake(float t){
 		shake = t;
 	}
+
+	float maxDistance(){
+		float height = Camera.main.orthographicSize * 3.2f/4f;
+		float width = height * Camera.main.aspect;
+		if (height < width)
+			return height;
+		else
+			return width;
+	}
+
 }

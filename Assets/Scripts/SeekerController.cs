@@ -19,8 +19,6 @@ public class SeekerController : MonoBehaviour {
 		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
 		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle,rotationSpeed)) * speed;
 
-		Debug.Log ("" + GetComponent<Rigidbody2D> ().velocity);
-
 
 	}
 
