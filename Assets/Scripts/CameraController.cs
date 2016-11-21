@@ -6,9 +6,10 @@ public class CameraController : MonoBehaviour {
 	public GameObject player;
 	private Vector3 offset;
 	private float shake;
+	public AnimationCurve zoom;
 
-	[Range(0,100)]
-	public float amplitude = 1;
+	[Range(0,1)]
+	public float amplitude = 0.2f;
 	[Range(0.00001f, 0.99999f)]
 	public float frequency = 0.98f;
 
@@ -29,6 +30,7 @@ public class CameraController : MonoBehaviour {
 
 	void Start () {
 		offset = transform.position - player.transform.position;
+
 	}
 		
 	void FixedUpdate () {
@@ -39,16 +41,7 @@ public class CameraController : MonoBehaviour {
 		float distCamera2Player = Vector3.Distance(playerPos, transform.position);
 
 		Vector3 mouseVector = (mousePos - player.transform.position).normalized;
-
-		//float maxDistance = maxDistance();
-		/*
-		float height = Camera.main.orthographicSize * 3.2f/4f;
-		float width = height * Camera.main.aspect;
-		if (height < width)
-			maxDistance = height;
-		else
-			maxDistance = width;*/
-
+	
 
 		if (distMouse2Player >= maxDistance())
 			distMouse2Player = maxDistance();
@@ -57,13 +50,19 @@ public class CameraController : MonoBehaviour {
 
 		float speed = (distMouse2Player + distCamera2Player) / 2;
 		transform.position = Vector3.Lerp (transform.position, targetCameraPos, Time.fixedDeltaTime * speed);
+
+
+
 	
+		Camera.main.orthographicSize = 5 * zoom.Evaluate(shake*10f);
 
 		if (shake > 0) {
 			transform.position = NoiseGen.Shake (amplitude, frequency, octaves, persistance, lacunarity, burstFrequency, burstContrast, Time.time, transform.position);
 			shake -= Time.fixedDeltaTime;
+
 		} else
 			shake = 0;
+
 	
 	}
 		
