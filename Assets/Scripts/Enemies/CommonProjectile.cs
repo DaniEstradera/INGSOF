@@ -7,13 +7,14 @@ public class CommonProjectile : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
-	}
+        GetComponent<Rigidbody2D>().velocity = new Vector2(speed, speed);
+
+    }
 	
 	// Update is called once per frame
 	void FixedUpdate() {
-		transform.position = Vector3.MoveTowards(transform.position, transform.position + (transform.up * speed), 1f);
-	}
+        //transform.position = Vector3.MoveTowards(transform.position, transform.position + (transform.up * speed), 1f);
+    }
 
     void OnCollisionEnter2D(Collision2D other)
     {
