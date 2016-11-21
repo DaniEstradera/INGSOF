@@ -2,49 +2,69 @@
 using System.Collections;
 
 public class CoilController : MonoBehaviour {
-	public GameObject ball;
+	private GameObject ball;
 	private SpriteRenderer sr; 
+	private bool shrink;
 	private bool charge;
 
-	public Vector2 scale;
-	public Vector2 chargedScale;
+	float delay = 0f;
+	float t = 0f;
+	float speedGrowth = 1f;
+	float speedShrink = 2f;
+	Vector3 originalScale;
+	public AnimationCurve scaleCurve;
 
 	public Color chargedColor;
-	public Color normalColor;
 
 	void Start(){
+		ball = this.transform.FindChild ("Ball").gameObject;
+		originalScale = this.transform.localScale;
 		sr = ball.GetComponent<SpriteRenderer> ();
 		sr.color = chargedColor;
+
 	}
 
 
-	void Update () {
-		if (charge) {
-			if (ball.transform.localScale.x < 4.3f) {
-				//sr.color += new Color (0, 0, 0, Time.deltaTime*0.8f);
-				ball.transform.localScale += new Vector3 (Time.deltaTime * 4.3f, Time.deltaTime * 4.3f, 0);
-			} else {
-				ball.transform.localScale = new Vector3 (4.3f, 4.3f, 0);
-				//sr.color = chargedColor;
-			}
+	void FixedUpdate () {
 		
-		} else if (ball.transform.localScale.x > 0f) {
-			//sr.color -= new Color (0, 0, 0f, Time.deltaTime*3.2f);
-			ball.transform.localScale -= new Vector3 (Time.deltaTime * 17.2f, Time.deltaTime * 17.2f, 0);
-		} else {
-			ball.transform.localScale = new Vector3 (0, 0, 0);
-			//sr.color = normalColor;
-		}
+		ball.transform.localScale = originalScale * scaleCurve.Evaluate(t);
+
+		if (shrink) {
+			if (t > 0) {
+				t -= Time.fixedDeltaTime * speedShrink;
+			} else
+				t = 0;
+		} 
+
+		resetSize ();
+
 	}
 
 	void OnTriggerStay2D(Collider2D other) {
 		if (other.gameObject.tag == ("Player")) {
-			charge = true;
-		}
+			if (t < 1) {
+				t += Time.fixedDeltaTime * speedGrowth;
+			} else {
+				t = 1;
+				delay = 1f;
+			}
+			shrink = false;
+			
+		} 
 	}
 	void OnTriggerExit2D(Collider2D other) {
 		if (other.gameObject.tag == ("Player")) {
-			charge = false;
+			if (t < 1) {
+				shrink = true;
+			}
+		}
+	}
+
+	void resetSize () {
+		if (delay > 0)
+			delay -= Time.fixedDeltaTime;
+		else {
+			shrink = true;;
 		}
 	}
 }

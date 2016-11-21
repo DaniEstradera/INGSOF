@@ -19,9 +19,9 @@ public class BallController : MonoBehaviour {
 
 	void Start(){
 		sr = GetComponent<SpriteRenderer>();
-        GameMode = GameObject.Find("HUD");
+		GameMode = GameObject.Find("HUD");
 
-    }
+	}
 
 	void FixedUpdate () {
 		
@@ -82,9 +82,9 @@ public class BallController : MonoBehaviour {
 	}
 
 	public void death () {
-        GameMode.GetComponent<GameMode>().GameIsOver = true;
+		GameMode.GetComponent<GameMode>().GameIsOver = true;
 
-    }
+	}
 
 }
 	
