@@ -9,7 +9,8 @@ public class BallController : MonoBehaviour {
 	private float targetAngle;
 	private float currentAngle;
 	private float delay = 0.2f;
-	private SpriteRenderer sr; 
+	private SpriteRenderer sr;
+	private GameObject GameMode;
 
 	//public Camera camera;
 
@@ -18,7 +19,9 @@ public class BallController : MonoBehaviour {
 
 	void Start(){
 		sr = GetComponent<SpriteRenderer>();
-	}
+        GameMode = GameObject.Find("HUD");
+
+    }
 
 	void FixedUpdate () {
 		
@@ -79,8 +82,9 @@ public class BallController : MonoBehaviour {
 	}
 
 	public void death () {
+        GameMode.GetComponent<GameMode>().GameIsOver = true;
 
-	}
+    }
 
 }
 	
