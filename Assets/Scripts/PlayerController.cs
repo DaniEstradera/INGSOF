@@ -16,6 +16,13 @@ public class PlayerController : MonoBehaviour {
 
 	public GameObject dash;
 	public GameObject spark;
+	public GameObject spark2;
+
+	bool auxio;
+
+	void Start(){
+		
+	}
 
 	void FixedUpdate () {
 		
@@ -71,14 +78,32 @@ public class PlayerController : MonoBehaviour {
 			SpawnEffect ("Bubble");
 			SpawnEffect ("Blast");
 			//sparkParticles ();
-			Camera.main.GetComponent<CameraController> ().SetShake (0.05f);
+			Camera.main.GetComponent<CameraController> ().SetShake (0.1f);
+			auxio = true;
 
+		}
+	}
+
+
+
+	void Update() {
+		if (auxio) {
+			if (Time.timeScale > 0.2F)
+				Time.timeScale = 0.2F;
+			else
+				auxio = false;
+		} else {
+			if (Time.timeScale < 1.0F)
+				Time.timeScale += 0.1f;
+			else
+				Time.timeScale = 1;
 		}
 	}
 
 	void OnCollisionExit2D(Collision2D other){
 		if (other.gameObject.tag == ("Bouncer")){
-			sparkParticles ();
+			sparkParticles (spark);
+			sparkParticles (spark2);
 		}
 
 	}
@@ -107,11 +132,12 @@ public class PlayerController : MonoBehaviour {
 		dash.transform.eulerAngles = new Vector3 (0, 0,currentAngle+90);
 	}
 
-	void sparkParticles (){
+	void sparkParticles (GameObject spark){
 		spark.SetActive (true);
 		spark.GetComponent<ParticleSystem>().time = 0;
 		spark.transform.eulerAngles = new Vector3 (0, 0,currentAngle+90-135);
 		spark.GetComponent<ParticleSystem>().Play(true);
+
 	}
 
 	void death () {
