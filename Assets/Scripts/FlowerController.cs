@@ -21,20 +21,20 @@ public class FlowerController : MonoBehaviour {
 	void FixedUpdate () {
 		if (charge) {
 			if (ball.transform.localScale.x < 1f) {
-				//sr.color += new Color (0, 0, 0, Time.deltaTime*0.8f);
+				
 				ball.transform.localScale += new Vector3 (Time.fixedDeltaTime*6f, Time.fixedDeltaTime*6f, 0);
 			} else {
 				ball.transform.localScale = new Vector3 (1,1,1);
-				resetSize ();
-				//sr.color = chargedColor;
+				//resetSize ();
+
 			}
 
 		} else if (ball.transform.localScale.x > 0f) {
-			//sr.color -= new Color (0, 0, 0f, Time.deltaTime*3.2f);
+			
 			ball.transform.localScale -= new Vector3 (Time.fixedDeltaTime * 5f, Time.fixedDeltaTime * 5f, 0);
 		} else {
 			ball.transform.localScale = new Vector3 (0, 0, 0);
-			//sr.color = normalColor;
+
 		}
 	}
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
 public class PlayerController : MonoBehaviour {
 
 	public static float playerSpeed = 6f;
@@ -17,8 +18,11 @@ public class PlayerController : MonoBehaviour {
 	public GameObject dash;
 	public GameObject spark;
 	public GameObject spark2;
+	public GameObject deathBlanket;
 
-	bool auxio;
+	bool timeWarp;
+
+	//float 
 
 	void Start(){
 		
@@ -78,20 +82,39 @@ public class PlayerController : MonoBehaviour {
 			SpawnEffect ("Bubble");
 			SpawnEffect ("Blast");
 			//sparkParticles ();
+			//Camera.main.GetComponent<CameraController> ().SetShake (0.1f);
+			//timeWarp = true;
+		}
+
+		if (other.gameObject.tag == ("Enemy")){
+
+			if (!power) {
+				death ();
+			}
+
+			delay = 0.4f;
+			currentSpeed = powerSpeed;
+			power = true;
+			SpawnEffect ("ShockWave");
+			SpawnEffect ("Bubble");
+			SpawnEffect ("Blast");
+			//sparkParticles ();
 			Camera.main.GetComponent<CameraController> ().SetShake (0.1f);
-			auxio = true;
+			timeWarp = true;
 
 		}
+
+
 	}
 
 
 
 	void Update() {
-		if (auxio) {
+		if (timeWarp) {
 			if (Time.timeScale > 0.2F)
 				Time.timeScale = 0.2F;
 			else
-				auxio = false;
+				timeWarp = false;
 		} else {
 			if (Time.timeScale < 1.0F)
 				Time.timeScale += 0.1f;
@@ -141,7 +164,8 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void death () {
-	
+		deathBlanket.SetActive(true);
+
 	}
 
 }

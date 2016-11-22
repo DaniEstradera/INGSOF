@@ -36,7 +36,7 @@ public class CoilController : MonoBehaviour {
 				t = 0;
 		} 
 
-		resetSize ();
+		//resetSize ();
 
 	}
 

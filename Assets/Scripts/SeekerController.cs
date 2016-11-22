@@ -7,20 +7,49 @@ public class SeekerController : MonoBehaviour {
 	float currentAngle;
 	public float speed;
 	public float rotationSpeed;
+
+	Vector3 spawnPos;
+
+	bool followPlayer = false;
 	// Use this for initialization
 	void Start () {
-		
+		spawnPos = this.transform.position;
 	}
 
 	// Update is called once per frame
 	void FixedUpdate () {
-
-		targetAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(targetRotation().y, targetRotation().x));
-		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
-		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle,rotationSpeed)) * speed;
-
-
+		if (followPlayer) {
+			targetAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (targetRotation ().y, targetRotation ().x));
+			currentAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (GetComponent<Rigidbody2D> ().velocity.y, GetComponent<Rigidbody2D> ().velocity.x));
+			GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle, rotationSpeed)) * speed;
+		} else 
+			GetComponent<Rigidbody2D> ().velocity = Vector3.zero;
 	}
+
+	void OnTriggerStay2D(Collider2D other) {
+		if (other.gameObject.tag == ("Player")) {
+			followPlayer = true;
+		} 
+	}
+
+	void OnTriggerExit2D(Collider2D other) {
+		if (other.gameObject.tag == ("Player")) {
+			//followPlayer = false;
+		}
+	}
+
+
+	void OnCollisionEnter2D(Collision2D other) {
+		if (other.gameObject.tag == ("Player")) {
+			if (PlayerController.power) {
+				//MonoBehaviour.Destroy (this.gameObject);
+				transform.position = spawnPos;
+				followPlayer = false;
+				GetComponent<Rigidbody2D> ().velocity = Vector3.zero;
+			}
+		}
+	}
+
 
 	Vector2 targetRotation () {
 		//Vector3 thisPositionInCamera = Camera.main.WorldToScreenPoint (this.transform.position);
