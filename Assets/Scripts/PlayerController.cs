@@ -15,30 +15,36 @@ public class PlayerController : MonoBehaviour {
 	private float targetAngle;
 	private float currentAngle;
 
-    private GameObject GameMode;
-    private bool deathState = false;
+    private float axisX;
+    private float axisY;
+    //private Vector2 axisVector;
 
-    public GameObject dash;
+    private GameObject GameMode;
+	private bool deathState = false;
+
+	public GameObject dash;
 	public GameObject spark;
 	public GameObject spark2;
 	public GameObject deathBlanket;
+    public bool useGamePad;
+    public int playerNumber;
 
 	bool timeWarp;
 
 	//float 
 
 	void Start(){
-        GameMode = GameObject.Find("HUD");
-    }
+		GameMode = GameObject.Find("HUD");
+	}
 
 	void FixedUpdate () {
-        if (deathState)
-        {
-            SpawnEffect("ShockWave");
-            SpawnEffect("Bubble");
-            SpawnEffect("Blast");
-            return;
-        }
+		if (deathState)
+		{
+			SpawnEffect("ShockWave");
+			SpawnEffect("Bubble");
+			SpawnEffect("Blast");
+			return;
+		}
 		targetAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(targetRotation().y, targetRotation().x));
 		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
 		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle, 36f/currentSpeed+4f)) * currentSpeed;
@@ -49,11 +55,34 @@ public class PlayerController : MonoBehaviour {
 
 	Vector2 targetRotation () {
 		Vector3 thisPositionInCamera = Camera.main.WorldToScreenPoint (this.transform.position);
-		Vector2 targetCoords = (Vector2)Input.mousePosition - new Vector2 (thisPositionInCamera.x, thisPositionInCamera.y);
-		float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
+        Vector2 targetPosition;
+        if (useGamePad){
+            targetPosition = GetAxis();
+        } else {
+            targetPosition = (Vector2)Input.mousePosition;
+        }
+        Vector2 targetCoords = targetPosition - new Vector2(thisPositionInCamera.x, thisPositionInCamera.y);
+
+        float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
 		Vector2 targetVector = targetCoords / module;
 		return targetVector;
-	}	
+	}
+	
+	public Vector2 GetAxis() {
+        if (Input.GetAxis("Horizontal"+playerNumber.ToString()) != 0){
+            axisX = Input.GetAxis("Horizontal" + playerNumber.ToString());
+        }
+        if (Input.GetAxis("Vertical" + playerNumber.ToString()) != 0)
+        {
+            axisY = Input.GetAxis("Vertical" + playerNumber.ToString());
+        }
+        //float speed = 2;
+       // axisVector = Vector2.Lerp(axisVector, new Vector2(axisX, axisY), Time.fixedDeltaTime * speed);
+        Vector2 axisVector = new Vector2(axisX, axisY);
+        axisVector.Normalize();
+        Vector2 fakePositionMouse = axisVector * 2000;
+        return fakePositionMouse;
+    }	
 		
 	float normalizeAngle (float angle){
 		if (angle < 0)
@@ -172,14 +201,14 @@ public class PlayerController : MonoBehaviour {
 
 	}
 	public void death () {
-        deathBlanket.SetActive(true);
-    }
+		deathBlanket.SetActive(true);
+	}
 
-    public void Win()
-    {
-        deathState = true;
-        GameMode.GetComponent<GameMode>().GameIsOver = true;
-        GameMode.GetComponent<GameMode>().StateOfTheGame = "WinGame";
-    }
+	public void Win()
+	{
+		deathState = true;
+		GameMode.GetComponent<GameMode>().GameIsOver = true;
+		GameMode.GetComponent<GameMode>().StateOfTheGame = "WinGame";
+	}
 }
 	
