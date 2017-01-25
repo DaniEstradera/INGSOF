@@ -30,8 +30,19 @@ public class PlayerController : MonoBehaviour {
     public bool useGamePad;
     public int playerNumber;
 
-	bool timeWarp;
+    public AudioClip[] BounceSound;
+    public AudioClip WinSound;
+    public AudioClip DeathSound;
+    public AudioClip NullSound;
+    private AudioSource source;
+    private int BounceSoundCount=0;
+    private float TimeBetweenBounces=0;
 
+    bool timeWarp;
+
+    void Awake() {
+        source = GetComponent<AudioSource>();
+    }
 
 	void Start(){
 		GameMode = GameObject.Find("HUD");
@@ -125,7 +136,10 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D other) {
-		if (other.gameObject.tag == ("Bouncer")){
+
+        AudioClip CollisionAudio = NullSound;
+
+        if (other.gameObject.tag == ("Bouncer")){
 			powerDuration = 0.4f;
 			currentSpeed = powerSpeed;
 			power = true;
@@ -133,20 +147,28 @@ public class PlayerController : MonoBehaviour {
 			SpawnEffect ("Bubble");
 			SpawnEffect ("Blast");
 
-
-			Spawnlightning(new Vector2 (this.transform.position.x, this.transform.position.y));
+            Spawnlightning(new Vector2 (this.transform.position.x, this.transform.position.y));
 
 			this.transform.FindChild ("Shield").gameObject.SetActive(false);
 			this.transform.FindChild ("Shield").gameObject.SetActive(true);
 			this.transform.FindChild ("Shield").GetComponent<ShieldAnim> ().setT (0f);
 
-		}
+            TimeBetweenBounces = Time.time - TimeBetweenBounces;
+            if (TimeBetweenBounces > 1)
+            {
+                BounceSoundCount = 0;
+            }
+            TimeBetweenBounces = Time.time;
+            CollisionAudio = BounceSound[BounceSoundCount];
+            BounceSoundCount = Mathf.Clamp(++BounceSoundCount, 0, BounceSound.Length - 1);
+        }
 
 		if (other.gameObject.tag == ("Enemy")){
 
 			if (!power) {
 				death ();
-			}
+                CollisionAudio = DeathSound;
+            }
 
 			powerDuration = 0.4f;
 			currentSpeed = powerSpeed;
@@ -159,15 +181,19 @@ public class PlayerController : MonoBehaviour {
 			this.transform.FindChild ("Shield").GetComponent<ShieldAnim> ().setT (0f);
 
 			Camera.main.GetComponent<CameraController> ().SetShake (0.1f);
-			//timeWarp = true;
+            //timeWarp = true;
+            
 
-		}
+
+        }
 		if (other.gameObject.tag == ("Finish")) {
 			win ();
+            CollisionAudio = WinSound;
 
-		}
-	
-	}
+        }
+
+        PlayCollisionSound(CollisionAudio);
+    }
 		
 	void OnCollisionExit2D(Collision2D other){
 		if (other.gameObject.tag == ("Bouncer")){
@@ -227,26 +253,17 @@ public class PlayerController : MonoBehaviour {
 
 	}
 	public void death () {
-<<<<<<< HEAD:Assets/Scripts/PlayerController.cs
-		deathBlanket.SetActive(true);
-	}
+		if (!winBlanket.activeInHierarchy) 
+            deathBlanket.SetActive(true);
 
-	public void Win()
-	{
-		deathState = true;
-		GameMode.GetComponent<GameMode>().GameIsOver = true;
-		GameMode.GetComponent<GameMode>().StateOfTheGame = "WinGame";
-	}
-=======
-		if (!winBlanket.activeInHierarchy)
-        	deathBlanket.SetActive(true);
     }
 
 	public void win () {
-		if (!deathBlanket.activeInHierarchy)
-			winBlanket.SetActive(true);
+		if (!deathBlanket.activeInHierarchy) 
+            winBlanket.SetActive(true);
 	}
-		
->>>>>>> 891a5b38eac2df1da72a6472471703334e3bc3ea:Assets/Code/PlayerController.cs
+
+    void PlayCollisionSound(AudioClip CollisionAudio) {
+        source.PlayOneShot(CollisionAudio);
+    }
 }
-	

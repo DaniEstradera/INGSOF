@@ -82,12 +82,12 @@ public class CameraController : MonoBehaviour {
 
 	void FixedUpdate () {
 		Vector3 playerPos = GetCenterOfPlayers() + offset;
-        Vector2 fakeMousePosition;
-        if (player.GetComponent<PlayerController>().useGamePad){
-            fakeMousePosition = player.GetComponent<PlayerController>().GetAxis();
-        } else {
-            fakeMousePosition = (Vector2)Input.mousePosition;
-        }
+		Vector2 fakeMousePosition;
+		if (player.GetComponent<PlayerController>().useGamePad){
+			fakeMousePosition = player.GetComponent<PlayerController>().GetAxis();
+		} else {
+			fakeMousePosition = (Vector2)Input.mousePosition;
+		}
 		Vector3 mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (fakeMousePosition).x, Camera.main.ScreenToWorldPoint (fakeMousePosition).y, offset.z); 
 
 		float distMouse2Player = Vector3.Distance(playerPos, mousePos); 
@@ -120,16 +120,16 @@ public class CameraController : MonoBehaviour {
 	
 	}
 
-    Vector3 GetCenterOfPlayers() {
-        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
-        Vector3 center = new Vector3(0,0,0);
+	Vector3 GetCenterOfPlayers() {
+		GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+		Vector3 center = new Vector3(0,0,0);
 
-        for (int i= 0; i<players.Length; i++){
-            center += players[i].transform.position;
-        }
-        center /= players.Length;
-        return center;
-    }	
+		for (int i= 0; i<players.Length; i++){
+			center += players[i].transform.position;
+		}
+		center /= players.Length;
+		return center;
+	}	
 
 	public void SetShake(float t){
 		shake = t;

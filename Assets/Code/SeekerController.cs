@@ -8,19 +8,29 @@ public class SeekerController : MonoBehaviour {
 	public float speed;
 	public float rotationSpeed;
 
-	float distance2Player;
+    float distance2Player;
 
 	Vector3 spawnPos;
 
 	bool followPlayer = false;
+    bool LastUpdatePlayerPower = false;
+    private AudioSource source;
+    public AudioClip DodgeSound;
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
 		spawnPos = this.transform.position;
-	}
+        GetComponent<AudioSource>().playOnAwake = false;
+        //GetComponent<AudioSource>().clip = saw;
+    }
 
-	// Update is called once per frame
-	void FixedUpdate () {
+    void Awake()
+    {
+        source = GetComponent<AudioSource>();
+    }
+
+    // Update is called once per frame
+    void FixedUpdate () {
 		distance2Player = Vector2.Distance((new Vector2 (player.transform.localPosition.x, player.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
 		if (followPlayer) {
 			targetAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (targetRotation ().y, targetRotation ().x));
@@ -62,10 +72,17 @@ public class SeekerController : MonoBehaviour {
 			}
 			
 		}
-			
-	}
-		
+        if (PlayerController.power && !LastUpdatePlayerPower) {
+            OnDodgePlayer();
+        }
+        LastUpdatePlayerPower = PlayerController.power;
 
+    }
+		
+    void OnDodgePlayer() {
+        Debug.Log("DODGE");
+        source.PlayOneShot(DodgeSound);
+    }
 
 	void OnCollisionEnter2D(Collision2D other) {
 		if (other.gameObject.tag == ("Player")) {
