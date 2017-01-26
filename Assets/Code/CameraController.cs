@@ -8,6 +8,8 @@ public class CameraController : MonoBehaviour {
 	public int currentLevel;
 	public GameObject player;
 	public GameObject playerCoop;
+	float distanceBetweenPlayersX;
+	float distanceBetweenPlayersY;
 	private Vector3 offset;
 	private float shake;
 	public AnimationCurve zoom;
@@ -94,13 +96,9 @@ public class CameraController : MonoBehaviour {
 		Vector3 mousePos;
         if (player.GetComponent<PlayerController>().useGamePad){
             fakeMousePosition = player.GetComponent<PlayerController>().GetAxis();
-			//if (player.GetComponent<PlayerController> ().GetAxis ().x == 0.0f && player.GetComponent<PlayerController> ().GetAxis ().y == 0.0f) {
-			//	mousePos = new Vector3(player.GetComponent<Rigidbody2D> ().velocity.x * 1 + playerPos.x, player.GetComponent<Rigidbody2D> ().velocity.y * 1 + playerPos.y, offset.z);
-			//} else mousePos = new Vector3(fakeMousePosition.x * 1 + playerPos.x,fakeMousePosition.y * 1 + playerPos.y, offset.z);
-			mousePos = new Vector3(player.GetComponent<Rigidbody2D> ().velocity.x * 1 + playerPos.x, player.GetComponent<Rigidbody2D> ().velocity.y * 1 + playerPos.y, offset.z);
-			//mousePos = new Vector3 (fakeMousePosition.x, fakeMousePosition.y, offset);
-			//mousePos = new Vector3((fakeMousePosition.x/Mathf.Abs(fakeMousePosition.x)) *Mathf.Log((Mathf.Abs(fakeMousePosition.x)+1) * 1024f, 2), (fakeMousePosition.y/Mathf.Abs(fakeMousePosition.y)) * Mathf.Log(Mathf.Abs((fakeMousePosition.y)+1) * 1024f, 2), offset.z);
-        } else {
+			//mousePos = new Vector3(player.GetComponent<Rigidbody2D> ().velocity.x * 1 + playerPos.x, player.GetComponent<Rigidbody2D> ().velocity.y * 1 + playerPos.y, offset.z);
+			mousePos = playerPos;
+		} else {
             fakeMousePosition = (Vector2)Input.mousePosition;
 			mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (fakeMousePosition).x, Camera.main.ScreenToWorldPoint (fakeMousePosition).y, offset.z);
 
@@ -121,10 +119,17 @@ public class CameraController : MonoBehaviour {
 		//transform.position = targetCameraPos;
 		transform.position = Vector3.Lerp (transform.position, targetCameraPos, Time.fixedDeltaTime * speed);
 
+		if (playerCoop.activeInHierarchy) {
+			distanceBetweenPlayersX = Mathf.Abs (player.transform.localPosition.x - playerCoop.transform.localPosition.x);
+			distanceBetweenPlayersY = Mathf.Abs (player.transform.localPosition.y - playerCoop.transform.localPosition.y);
+			Camera.main.orthographicSize = Mathf.Lerp (Camera.main.orthographicSize, Mathf.Max (distanceBetweenPlayersX - 10, distanceBetweenPlayersY), Time.fixedDeltaTime * speed);
+		}
 
-
+		if (Camera.main.orthographicSize < 5)
+			Camera.main.orthographicSize = 5;
 	
-		Camera.main.orthographicSize = 5 * zoom.Evaluate(shake*10f);
+		//if (distanceBetweenPlayersY > 5) Camera.main.orthographicSize = distanceBetweenPlayersY;
+		//Camera.main.orthographicSize = 5 * zoom.Evaluate(shake*10f);
 
 		if (shake > 0) {
 			transform.position = NoiseGen.Shake (amplitude, frequency, octaves, persistance, lacunarity, burstFrequency, burstContrast, Time.time, transform.position);
