@@ -50,7 +50,7 @@ public class SeekerController : MonoBehaviour {
 			targetAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (targetRotation (selectPlayer()).y, targetRotation (selectPlayer()).x));
 			currentAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (GetComponent<Rigidbody2D> ().velocity.y, GetComponent<Rigidbody2D> ().velocity.x));
 			if (CameraController.power && distance2Player <= 5) {
-				GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle + 180, rotationSpeed)) * speed * 4 / distance2Player;
+				GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle + 180, rotationSpeed)) * speed * 3 / distance2Player;
 				transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation(selectPlayer()).x , targetRotation(selectPlayer()).y, 0),Time.fixedDeltaTime*20);
 			} else {
 				GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle, rotationSpeed)) * speed;
@@ -94,7 +94,6 @@ public class SeekerController : MonoBehaviour {
     }
 		
     void OnDodgePlayer() {
-        Debug.Log("DODGE");
         source.PlayOneShot(DodgeSound);
     }
 

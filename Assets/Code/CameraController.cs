@@ -122,14 +122,11 @@ public class CameraController : MonoBehaviour {
 		if (playerCoop.activeInHierarchy) {
 			distanceBetweenPlayersX = Mathf.Abs (player.transform.localPosition.x - playerCoop.transform.localPosition.x);
 			distanceBetweenPlayersY = Mathf.Abs (player.transform.localPosition.y - playerCoop.transform.localPosition.y);
-			Camera.main.orthographicSize = Mathf.Lerp (Camera.main.orthographicSize, Mathf.Max (distanceBetweenPlayersX - 10, distanceBetweenPlayersY), Time.fixedDeltaTime * speed);
+			Camera.main.orthographicSize = Mathf.Lerp (Camera.main.orthographicSize, Mathf.Max (distanceBetweenPlayersX - 10, distanceBetweenPlayersY), Time.fixedDeltaTime * speed) * zoom.Evaluate(shake*10f);
 		}
 
 		if (Camera.main.orthographicSize < 5)
-			Camera.main.orthographicSize = 5;
-	
-		//if (distanceBetweenPlayersY > 5) Camera.main.orthographicSize = distanceBetweenPlayersY;
-		//Camera.main.orthographicSize = 5 * zoom.Evaluate(shake*10f);
+			Camera.main.orthographicSize = 5 * zoom.Evaluate(shake*10f);
 
 		if (shake > 0) {
 			transform.position = NoiseGen.Shake (amplitude, frequency, octaves, persistance, lacunarity, burstFrequency, burstContrast, Time.time, transform.position);

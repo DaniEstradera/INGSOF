@@ -23,9 +23,6 @@ public class PlayerController : MonoBehaviour {
     private GameObject GameMode;
 	private bool deathState = false;
 
-	public GameObject dash;
-	public GameObject spark;
-	public GameObject spark2;
 	public GameObject deathBlanket;
     public GameObject winBlanket;
     public bool useGamePad;
@@ -125,13 +122,10 @@ public class PlayerController : MonoBehaviour {
         {
             axisVector.y = Input.GetAxis("Vertical" + playerNumber.ToString());
         }
-        //float speed = 2;
-       // axisVector = Vector2.Lerp(axisVector, new Vector2(axisX, axisY), Time.fixedDeltaTime * speed);
-        
+               
         axisVector.Normalize();
 
-		Vector2 fakePositionMouse = axisVector;
-		return fakePositionMouse;
+		return axisVector;
     }	
 		
 	float normalizeAngle (float angle){
