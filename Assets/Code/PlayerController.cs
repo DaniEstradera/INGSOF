@@ -5,7 +5,8 @@ using System.Collections;
 public class PlayerController : MonoBehaviour {
 
 	public static float playerSpeed = 6f;
-	public static bool power;
+	//public static bool //power;
+	public bool power;
 
 	private float currentSpeed;
 	private float powerSpeed = playerSpeed * 2f;
@@ -38,6 +39,7 @@ public class PlayerController : MonoBehaviour {
     private int BounceSoundCount=0;
     private float TimeBetweenBounces=0;
 
+    bool isOnEndGame=false;
     bool timeWarp;
 
     void Awake() {
@@ -46,7 +48,9 @@ public class PlayerController : MonoBehaviour {
 
 	void Start(){
 		GameMode = GameObject.Find("HUD");
-	}
+        isOnEndGame = false;
+
+    }
 
 	void FixedUpdate () {
 		if (deathState)
@@ -59,8 +63,15 @@ public class PlayerController : MonoBehaviour {
         
 		targetAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(targetRotation().y, targetRotation().x));
 		currentAngle = normalizeAngle(Mathf.Rad2Deg * Mathf.Atan2(GetComponent<Rigidbody2D>().velocity.y, GetComponent<Rigidbody2D>().velocity.x));
-		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle, 36f/currentSpeed+4f)) * currentSpeed;
+		//GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle, 36f/currentSpeed+4f)) * currentSpeed;
+		GetComponent<Rigidbody2D>().velocity = getDeg2Coords (Mathf.MoveTowardsAngle(currentAngle, targetAngle, 36f/currentSpeed+10f)) * currentSpeed;
 		transform.up = GetComponent<Rigidbody2D> ().velocity;
+
+		if (transform.eulerAngles.y == 180){ //patch
+			transform.right = GetComponent<Rigidbody2D> ().velocity;
+		}
+
+
 		updateSpeed (); 
 		dashParticles ();
 		if (power) {
@@ -79,33 +90,42 @@ public class PlayerController : MonoBehaviour {
 
 	Vector2 targetRotation () {
 		Vector3 thisPositionInCamera = Camera.main.WorldToScreenPoint (this.transform.position);
-        Vector2 targetPosition;
-        if (useGamePad){
-            targetPosition = GetAxis();
-        } else {
-            targetPosition = (Vector2)Input.mousePosition;
-        }
-        Vector2 targetCoords = targetPosition - new Vector2(thisPositionInCamera.x, thisPositionInCamera.y);
+        Vector2 targetVector;
 
-        float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
-		Vector2 targetVector = targetCoords / module;
+		if (useGamePad) {
+			targetVector = GetAxis ();
+			if (GetAxis().x == 0 && GetAxis().y == 0) {
+				targetVector = GetComponent<Rigidbody2D> ().velocity;
+				targetVector.Normalize ();
+
+			}
+		} else {
+			
+			Vector2 targetCoords = (Vector2)Input.mousePosition - new Vector2 (thisPositionInCamera.x, thisPositionInCamera.y);
+			targetCoords.Normalize ();
+			targetVector = targetCoords;
+		}
+
 		return targetVector;
 	}
 	
 	public Vector2 GetAxis() {
+		Vector2 axisVector = new Vector2 (0.0f, 0.0f);
         if (Input.GetAxis("Horizontal"+playerNumber.ToString()) != 0){
-            axisX = Input.GetAxis("Horizontal" + playerNumber.ToString());
+			
+            axisVector.x = Input.GetAxis("Horizontal" + playerNumber.ToString());
         }
         if (Input.GetAxis("Vertical" + playerNumber.ToString()) != 0)
         {
-            axisY = Input.GetAxis("Vertical" + playerNumber.ToString());
+            axisVector.y = Input.GetAxis("Vertical" + playerNumber.ToString());
         }
         //float speed = 2;
        // axisVector = Vector2.Lerp(axisVector, new Vector2(axisX, axisY), Time.fixedDeltaTime * speed);
-        Vector2 axisVector = new Vector2(axisX, axisY);
+        
         axisVector.Normalize();
-        Vector2 fakePositionMouse = axisVector * 2000;
-        return fakePositionMouse;
+
+		Vector2 fakePositionMouse = axisVector;
+		return fakePositionMouse;
     }	
 		
 	float normalizeAngle (float angle){
@@ -138,7 +158,7 @@ public class PlayerController : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D other) {
 
         AudioClip CollisionAudio = NullSound;
-
+        if (isOnEndGame) return;
         if (other.gameObject.tag == ("Bouncer")){
 			powerDuration = 0.4f;
 			currentSpeed = powerSpeed;
@@ -253,17 +273,27 @@ public class PlayerController : MonoBehaviour {
 
 	}
 	public void death () {
-		if (!winBlanket.activeInHierarchy) 
+		if (!winBlanket.activeInHierarchy)
+        {
             deathBlanket.SetActive(true);
-
-    }
+            isOnEndGame = true;
+        }
+		
+	}
+    
 
 	public void win () {
-		if (!deathBlanket.activeInHierarchy) 
+		if (!deathBlanket.activeInHierarchy)
+        {
             winBlanket.SetActive(true);
+            isOnEndGame = true;
+        }
+            
 	}
+
 
     void PlayCollisionSound(AudioClip CollisionAudio) {
         source.PlayOneShot(CollisionAudio);
     }
+
 }
