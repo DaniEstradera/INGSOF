@@ -3,10 +3,15 @@ using System.Collections;
 
 public class SeekerController : MonoBehaviour {
 	public GameObject player;
+	public GameObject playerCoop;
+
 	float targetAngle;
 	float currentAngle;
 	public float speed;
 	public float rotationSpeed;
+
+	float distance2PlayerOne;
+	float distance2PlayerCoop;
 
 	float distance2Player;
 
@@ -21,13 +26,25 @@ public class SeekerController : MonoBehaviour {
 
 	// Update is called once per frame
 	void FixedUpdate () {
-		distance2Player = Vector2.Distance((new Vector2 (player.transform.localPosition.x, player.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
+		
+		distance2PlayerOne = Vector2.Distance((new Vector2 (player.transform.localPosition.x, player.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
+
+		if (playerCoop.activeInHierarchy) { 
+			distance2PlayerCoop = Vector2.Distance((new Vector2 (playerCoop.transform.localPosition.x, playerCoop.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
+			distance2Player = Mathf.Min (distance2PlayerOne, distance2PlayerCoop);
+
+		} else distance2Player = distance2PlayerOne;
+
+		//distance2PlayerCoop = Vector2.Distance((new Vector2 (playerCoop.transform.localPosition.x, playerCoop.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
+
+		
+
 		if (followPlayer) {
-			targetAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (targetRotation ().y, targetRotation ().x));
+			targetAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (targetRotation (selectPlayer()).y, targetRotation (selectPlayer()).x));
 			currentAngle = normalizeAngle (Mathf.Rad2Deg * Mathf.Atan2 (GetComponent<Rigidbody2D> ().velocity.y, GetComponent<Rigidbody2D> ().velocity.x));
-			if (PlayerController.power && distance2Player <= 5) {
+			if (CameraController.power && distance2Player <= 5) {
 				GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle + 180, rotationSpeed)) * speed * 4 / distance2Player;
-				transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation().x , targetRotation().y, 0),Time.fixedDeltaTime*20);
+				transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation(selectPlayer()).x , targetRotation(selectPlayer()).y, 0),Time.fixedDeltaTime*20);
 			} else {
 				GetComponent<Rigidbody2D> ().velocity = getDeg2Coords (Mathf.MoveTowardsAngle (currentAngle, targetAngle, rotationSpeed)) * speed;
 
@@ -40,7 +57,7 @@ public class SeekerController : MonoBehaviour {
 			followPlayer = true;
 		}
 		
-		if (PlayerController.power) {
+		if (CameraController.power) {
 			this.transform.FindChild ("CharPow").gameObject.SetActive (true);
 
 			if (this.transform.FindChild ("CharPow").gameObject.GetComponent<SpriteRenderer> ().color.r <= 1)
@@ -69,7 +86,7 @@ public class SeekerController : MonoBehaviour {
 
 	void OnCollisionEnter2D(Collision2D other) {
 		if (other.gameObject.tag == ("Player")) {
-			if (PlayerController.power) {
+			if (CameraController.power) {
 				this.transform.FindChild ("TailRPow").gameObject.SetActive (false);
 				this.transform.FindChild ("TailLPow").gameObject.SetActive (false);
 				this.transform.FindChild ("TailR").gameObject.SetActive (false);
@@ -90,14 +107,23 @@ public class SeekerController : MonoBehaviour {
 		}
 	}
 
-
-
-	Vector2 targetRotation () {
+	GameObject selectPlayer() {
 		
-		Vector2 targetCoords = player.transform.localPosition - transform.localPosition;
-		float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
-		Vector2 targetVector = targetCoords / module;
-		return targetVector;
+		if (distance2PlayerCoop < distance2PlayerOne && playerCoop.activeInHierarchy) {
+			return playerCoop;
+		} else
+			return player;
+
+		
+	}
+
+	Vector2 targetRotation (GameObject targetPlayer) {
+		
+		Vector2 targetCoords = targetPlayer.transform.localPosition - transform.localPosition;
+
+		//float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
+		targetCoords.Normalize();
+		return targetCoords;//targetVector
 	}	
 
 	float normalizeAngle (float angle){

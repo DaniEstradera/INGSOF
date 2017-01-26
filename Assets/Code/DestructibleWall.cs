@@ -21,7 +21,7 @@ public class DestructibleWall : MonoBehaviour {
 	void FixedUpdate () {
 
 		if (hard) {
-			if (PlayerController.power) {
+			if (CameraController.power) {
 				gameObject.tag = "Bouncer";
 				wallPow.gameObject.SetActive (true);
 
@@ -55,7 +55,7 @@ public class DestructibleWall : MonoBehaviour {
     {
         if (other.gameObject.tag == ("Player"))
         {
-			if (hard && PlayerController.power)
+			if (hard && CameraController.power)
             	destroy = true;
 			else if (!hard)
 				destroy = true;

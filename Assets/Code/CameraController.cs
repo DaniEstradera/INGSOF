@@ -4,8 +4,10 @@ using System.Collections;
 public class CameraController : MonoBehaviour {
 
 	public static int levelCount = 0;
+	public static bool power;
 	public int currentLevel;
 	public GameObject player;
+	public GameObject playerCoop;
 	private Vector3 offset;
 	private float shake;
 	public AnimationCurve zoom;
@@ -33,6 +35,7 @@ public class CameraController : MonoBehaviour {
 	void Start () {
 		offset = transform.position - GetCenterOfPlayers();
 		levelCount = currentLevel;
+
 	}
 		
 
@@ -81,15 +84,28 @@ public class CameraController : MonoBehaviour {
 	}
 
 	void FixedUpdate () {
+		if (playerCoop.activeInHierarchy) {
+			power = player.GetComponent<PlayerController> ().power || playerCoop.GetComponent<PlayerController> ().power;
+		} else
+			power = player.GetComponent<PlayerController> ().power;
+		
 		Vector3 playerPos = GetCenterOfPlayers() + offset;
         Vector2 fakeMousePosition;
+		Vector3 mousePos;
         if (player.GetComponent<PlayerController>().useGamePad){
             fakeMousePosition = player.GetComponent<PlayerController>().GetAxis();
+			//if (player.GetComponent<PlayerController> ().GetAxis ().x == 0.0f && player.GetComponent<PlayerController> ().GetAxis ().y == 0.0f) {
+			//	mousePos = new Vector3(player.GetComponent<Rigidbody2D> ().velocity.x * 1 + playerPos.x, player.GetComponent<Rigidbody2D> ().velocity.y * 1 + playerPos.y, offset.z);
+			//} else mousePos = new Vector3(fakeMousePosition.x * 1 + playerPos.x,fakeMousePosition.y * 1 + playerPos.y, offset.z);
+			mousePos = new Vector3(player.GetComponent<Rigidbody2D> ().velocity.x * 1 + playerPos.x, player.GetComponent<Rigidbody2D> ().velocity.y * 1 + playerPos.y, offset.z);
+			//mousePos = new Vector3 (fakeMousePosition.x, fakeMousePosition.y, offset);
+			//mousePos = new Vector3((fakeMousePosition.x/Mathf.Abs(fakeMousePosition.x)) *Mathf.Log((Mathf.Abs(fakeMousePosition.x)+1) * 1024f, 2), (fakeMousePosition.y/Mathf.Abs(fakeMousePosition.y)) * Mathf.Log(Mathf.Abs((fakeMousePosition.y)+1) * 1024f, 2), offset.z);
         } else {
             fakeMousePosition = (Vector2)Input.mousePosition;
-        }
-		Vector3 mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (fakeMousePosition).x, Camera.main.ScreenToWorldPoint (fakeMousePosition).y, offset.z); 
+			mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (fakeMousePosition).x, Camera.main.ScreenToWorldPoint (fakeMousePosition).y, offset.z);
 
+        }
+		//mousePos = new Vector3 (Camera.main.ScreenToWorldPoint (fakeMousePosition).x, Camera.main.ScreenToWorldPoint (fakeMousePosition).y, offset.z); 
 		float distMouse2Player = Vector3.Distance(playerPos, mousePos); 
 		float distCamera2Player = Vector3.Distance(playerPos, transform.position);
 

@@ -10,7 +10,8 @@ public class EstelaScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		if (!PlayerController.power) {
+		//!this.GetComponentsInParent<PlayerController> ().power
+		if (!CameraController.power) {
 			
 			if (this.GetComponent<TrailRenderer> ().time >= 0) {
 				

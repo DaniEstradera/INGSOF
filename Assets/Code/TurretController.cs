@@ -3,6 +3,9 @@ using System.Collections;
 
 public class TurretController : MonoBehaviour {
 	public GameObject player;
+	public GameObject playerCoop;
+	float distance2PlayerOne;
+	float distance2PlayerCoop;
 	float distance2Player;
 	float targetAngle;
 	float currentAngle;
@@ -19,9 +22,13 @@ public class TurretController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void FixedUpdate () {
-		distance2Player = Vector2.Distance((new Vector2 (player.transform.localPosition.x, player.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
-		//transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation().x , targetRotation().y, 0),Time.fixedDeltaTime*3);
+		distance2PlayerOne = Vector2.Distance((new Vector2 (player.transform.localPosition.x, player.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
 
+		if (playerCoop.activeInHierarchy) { 
+			distance2PlayerCoop = Vector2.Distance((new Vector2 (playerCoop.transform.localPosition.x, playerCoop.transform.localPosition.y)), (new Vector2 (this.transform.position.x, this.transform.position.y)));
+			distance2Player = Mathf.Min (distance2PlayerOne, distance2PlayerCoop);
+
+		} else distance2Player = distance2PlayerOne;
 
 		if (attacking) {
 
@@ -36,11 +43,11 @@ public class TurretController : MonoBehaviour {
 			this.transform.FindChild ("Charge").gameObject.transform.localScale = originalScale * attackCurve.Evaluate (t);
 
 			if (t > 0.1f) {
-				transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation ().x, targetRotation ().y, 0), Time.fixedDeltaTime * 3);
+				transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation (selectPlayer()).x, targetRotation (selectPlayer()).y, 0), Time.fixedDeltaTime * 3);
 			}
 
 		} else if (distance2Player >= 5) {
-			transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation().x , targetRotation().y, 0),Time.fixedDeltaTime*3);
+			transform.up = Vector3.Lerp (transform.up, new Vector3 (targetRotation(selectPlayer()).x , targetRotation(selectPlayer()).y, 0),Time.fixedDeltaTime*3);
 		} else {
 			attacking = true;
 
@@ -62,12 +69,19 @@ public class TurretController : MonoBehaviour {
 
 
 
-	Vector2 targetRotation () {
+	GameObject selectPlayer() {
 
-		Vector2 targetCoords = player.transform.localPosition - transform.localPosition;
-		float module = Mathf.Sqrt (targetCoords.x * targetCoords.x + targetCoords.y * targetCoords.y);
-		Vector2 targetVector = targetCoords / module;
-		return targetVector;
+		if (distance2PlayerCoop < distance2PlayerOne && playerCoop.activeInHierarchy) {
+			return playerCoop;
+		} else
+			return player;
+	}
+
+	Vector2 targetRotation (GameObject targetPlayer) {
+
+		Vector2 targetCoords = targetPlayer.transform.localPosition - transform.localPosition;
+		targetCoords.Normalize();
+		return targetCoords;
 	}	
 
 	float normalizeAngle (float angle){
