@@ -44,12 +44,18 @@ public class PlayerController : MonoBehaviour {
 
     void Awake() {
         source = GetComponent<AudioSource>();
+        isOnEndGame = false;
+        GameSettings Settings = GameObject.Find("GameSettings").GetComponent<GameSettings>();
+        if (Settings.DualStick) {
+            playerNumber = (playerNumber == 2 ? 9 : playerNumber);
+            useGamePad = true;
+        } else {
+            useGamePad = (playerNumber == 2 ? Settings.Player2GamePad : Settings.Player1GamePad);
+        }
     }
 
 	void Start(){
 		GameMode = GameObject.Find("HUD");
-        isOnEndGame = false;
-
     }
 
 	void FixedUpdate () {
@@ -295,5 +301,4 @@ public class PlayerController : MonoBehaviour {
     void PlayCollisionSound(AudioClip CollisionAudio) {
         source.PlayOneShot(CollisionAudio);
     }
-
 }
